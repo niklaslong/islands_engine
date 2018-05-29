@@ -7,9 +7,8 @@ defmodule IslandsEngine.Island do
   def types(), do: [:dot, :atoll, :square, :l_shape, :s_shape]
 
   def new(type, %Coordinate{} = upper_left) do
-    with [_|_] = offsets <- offsets(type),
-         %MapSet{} = coordinates <- add_coordinates(offsets, upper_left)
-    do
+    with [_ | _] = offsets <- offsets(type),
+         %MapSet{} = coordinates <- add_coordinates(offsets, upper_left) do
       {:ok, %Island{coordinates: coordinates, hit_coordinates: MapSet.new()}}
     else
       error -> error
@@ -24,7 +23,7 @@ defmodule IslandsEngine.Island do
   defp offsets(_), do: {:error, :invalid_island_type}
 
   defp add_coordinates(offsets, upper_left) do
-    Enum.reduce_while(offsets, MapSet.new(), fn(offset, acc) ->
+    Enum.reduce_while(offsets, MapSet.new(), fn offset, acc ->
       add_coordinate(acc, upper_left, offset)
     end)
   end
@@ -36,15 +35,17 @@ defmodule IslandsEngine.Island do
     end
   end
 
-  def overlaps?(existing_island, new_island), do:
-    not MapSet.disjoint?(existing_island.coordinates, new_island.coordinates)
+  def overlaps?(existing_island, new_island),
+    do: not MapSet.disjoint?(existing_island.coordinates, new_island.coordinates)
 
   def guess(island, coordinate) do
     case MapSet.member?(island.coordinates, coordinate) do
       true ->
         hit_coordinates = MapSet.put(island.hit_coordinates, coordinate)
         {:hit, %{island | hit_coordinates: hit_coordinates}}
-      false -> :miss
+
+      false ->
+        :miss
     end
   end
 
